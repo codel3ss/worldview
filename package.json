@@ -1,0 +1,38 @@
+{
+  "name": "worldview",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A god's-eye view of the planet: live public signals rendered on a photorealistic 3D globe.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "postinstall": "node scripts/sync-cesium.mjs",
+    "dev": "concurrently -n proxy,web -c magenta,cyan \"npm:dev:proxy\" \"npm:dev:web\"",
+    "dev:web": "vite",
+    "dev:proxy": "node server/index.js",
+    "prebuild": "node scripts/sync-cesium.mjs",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server/index.js",
+    "lint": "eslint .",
+    "smoke": "node test/smoke.mjs",
+    "test": "node --test test/unit/*.test.js"
+  },
+  "dependencies": {
+    "cesium": "^1.144.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "satellite.js": "^5.0.0",
+    "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.18.0",
+    "playwright": "^1.62.1",
+    "vite": "^7.1.0"
+  }
+}

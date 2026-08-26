@@ -1,0 +1,25 @@
+{
+  "_provenance": {
+    "what": "Curated seed list of GBFS (General Bikeshare Feed Specification) auto-discovery endpoints.",
+    "why": "The official MobilityData systems registry has no coordinates, so it cannot be filtered by viewport without fetching every feed. This file carries an approximate service-area centre per system so the layer can pick the handful that matter for where you are looking.",
+    "source": "https://github.com/MobilityData/gbfs/blob/master/systems.csv",
+    "accuracy": "Centres are hand-entered city centroids, accurate to a few kilometres. Station positions themselves come live from each operator's feed and are exact.",
+    "howToExtend": "Add an entry with the operator's gbfs.json auto-discovery URL and an approximate centre. Feeds that move or shut down will simply report as unavailable."
+  },
+  "systems": [
+    { "id": "citibike-nyc", "name": "Citi Bike", "city": "New York", "country": "US", "lat": 40.7306, "lon": -73.9866, "radiusKm": 30, "url": "https://gbfs.citibikenyc.com/gbfs/gbfs.json" },
+    { "id": "divvy-chi", "name": "Divvy", "city": "Chicago", "country": "US", "lat": 41.8781, "lon": -87.6298, "radiusKm": 30, "url": "https://gbfs.divvybikes.com/gbfs/gbfs.json" },
+    { "id": "baywheels-sf", "name": "Bay Wheels", "city": "San Francisco Bay Area", "country": "US", "lat": 37.7749, "lon": -122.4194, "radiusKm": 45, "url": "https://gbfs.baywheels.com/gbfs/gbfs.json" },
+    { "id": "bluebikes-bos", "name": "Bluebikes", "city": "Boston", "country": "US", "lat": 42.3601, "lon": -71.0589, "radiusKm": 25, "url": "https://gbfs.bluebikes.com/gbfs/gbfs.json" },
+    { "id": "capital-dc", "name": "Capital Bikeshare", "city": "Washington DC", "country": "US", "lat": 38.9072, "lon": -77.0369, "radiusKm": 35, "url": "https://gbfs.capitalbikeshare.com/gbfs/gbfs.json" },
+    { "id": "metro-la", "name": "Metro Bike Share", "city": "Los Angeles", "country": "US", "lat": 34.0522, "lon": -118.2437, "radiusKm": 35, "url": "https://bikeshare.metro.net/gbfs/gbfs.json" },
+    { "id": "bixi-mtl", "name": "BIXI", "city": "Montréal", "country": "CA", "lat": 45.5019, "lon": -73.5674, "radiusKm": 30, "url": "https://gbfs.velobixi.com/gbfs/gbfs.json" },
+    { "id": "bikeshare-tor", "name": "Bike Share Toronto", "city": "Toronto", "country": "CA", "lat": 43.6532, "lon": -79.3832, "radiusKm": 30, "url": "https://tor.publicbikesystem.net/ube/gbfs/v1/gbfs.json" },
+    { "id": "mobi-yvr", "name": "Mobi", "city": "Vancouver", "country": "CA", "lat": 49.2827, "lon": -123.1207, "radiusKm": 20, "url": "https://vancouver-gbfs.smoove.pro/gbfs/gbfs.json" },
+    { "id": "velib-par", "name": "Vélib' Métropole", "city": "Paris", "country": "FR", "lat": 48.8566, "lon": 2.3522, "radiusKm": 30, "url": "https://velib-metropole-opendata.smovengo.cloud/opendata/Velib_Metropole/gbfs.json" },
+    { "id": "oslo-bysykkel", "name": "Oslo Bysykkel", "city": "Oslo", "country": "NO", "lat": 59.9139, "lon": 10.7522, "radiusKm": 15, "url": "https://gbfs.urbansharing.com/oslobysykkel.no/gbfs.json" },
+    { "id": "bergen-bysykkel", "name": "Bergen Bysykkel", "city": "Bergen", "country": "NO", "lat": 60.3913, "lon": 5.3221, "radiusKm": 12, "url": "https://gbfs.urbansharing.com/bergenbysykkel.no/gbfs.json" },
+    { "id": "trondheim-bysykkel", "name": "Trondheim Bysykkel", "city": "Trondheim", "country": "NO", "lat": 63.4305, "lon": 10.3951, "radiusKm": 12, "url": "https://gbfs.urbansharing.com/trondheimbysykkel.no/gbfs.json" },
+    { "id": "edinburgh-nextbike", "name": "nextbike Glasgow", "city": "Glasgow", "country": "GB", "lat": 55.8642, "lon": -4.2518, "radiusKm": 15, "url": "https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_ga/gbfs.json" }
+  ]
+}

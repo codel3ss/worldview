@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+.env.local
+.cache/
+server/.cache/
+*.log
+.DS_Store
+public/cesium/
+test/smoke.png

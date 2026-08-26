@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>worldview — live planetary signals</title>
+    <meta name="description" content="Live public signals — aircraft, satellites, seismic events, vessels — rendered on a 3D globe in your browser." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2350e3c2' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2350e3c2'/%3E%3C/svg%3E" />
+    <script>
+      // Cesium resolves Workers/Assets relative to this. vite.config.js copies
+      // the runtime into /cesium for both dev and build.
+      window.CESIUM_BASE_URL = '/cesium/';
+    </script>
+  </head>
+  <body>
+    <div id="app">
+      <div id="globe" role="application" aria-label="3D globe"></div>
+
+      <div id="scanlines" aria-hidden="true"></div>
+      <div id="vignette" aria-hidden="true"></div>
+
+      <!-- Reticle + detection mesh overlay -->
+      <canvas id="overlay" aria-hidden="true"></canvas>
+
+      <header id="topbar">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span class="brand-text">WORLDVIEW</span>
+          <span class="brand-sub">open-signal geospatial console</span>
+        </div>
+        <div id="clock" class="mono"></div>
+        <div class="topbar-actions">
+          <button id="btn-share" class="ghost" title="Copy a link that restores this exact view">SHARE</button>
+          <button id="btn-help" class="ghost" title="Keyboard shortcuts and data notes">?</button>
+        </div>
+      </header>
+
+      <aside id="left-rail">
+        <section class="panel" id="panel-layers">
+          <h2>Layers</h2>
+          <div id="layer-list"></div>
+        </section>
+
+        <section class="panel" id="panel-basemap">
+          <h2>Map stack</h2>
+          <div id="basemap-list" class="chip-row"></div>
+          <h2 class="mt">Sensor</h2>
+          <div id="sensor-list" class="chip-row"></div>
+        </section>
+      </aside>
+
+      <aside id="right-rail">
+        <section class="panel" id="panel-contact">
+          <h2>Contact</h2>
+          <div id="contact-body" class="empty">No contact selected. Click any track on the globe.</div>
+        </section>
+        <section class="panel" id="panel-roster">
+          <h2>Roster <span id="roster-range" class="dim mono"></span></h2>
+          <div id="roster-body" class="empty">Fly somewhere to populate the roster.</div>
+        </section>
+      </aside>
+
+      <div id="jumpbar">
+        <input id="jump-input" type="search" placeholder="Jump to a place, ICAO hex, or lat,lon…" autocomplete="off" spellcheck="false" />
+        <div id="jump-results"></div>
+      </div>
+
+      <footer id="statusbar"></footer>
+
+      <div id="toasts" aria-live="polite"></div>
+
+      <dialog id="help-dialog">
+        <h2>worldview</h2>
+        <p class="dim">
+          Every track on this globe comes from a public feed. Positions can be
+          delayed, modeled, incomplete or simply wrong. Do not use this for
+          navigation, emergency response, or any safety-critical decision.
+        </p>
+        <h3>Keyboard</h3>
+        <ul class="keys mono">
+          <li><b>1–9</b> toggle layer</li>
+          <li><b>L</b> layer panel</li>
+          <li><b>M</b> cycle map stack</li>
+          <li><b>V</b> cycle sensor mode</li>
+          <li><b>T</b> acquire nearest / release</li>
+          <li><b>C</b> cockpit view on tracked aircraft</li>
+          <li><b>F</b> follow-cam on contact</li>
+          <li><b>Esc</b> clear selection</li>
+        </ul>
+        <h3>Data sources</h3>
+        <div id="help-sources" class="dim"></div>
+        <form method="dialog"><button class="primary">Close</button></form>
+      </dialog>
+    </div>
+
+    <div id="boot">
+      <div class="boot-inner">
+        <div class="boot-ring"></div>
+        <div class="boot-text mono">ACQUIRING PLANET…</div>
+        <div class="boot-log mono" id="boot-log"></div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
