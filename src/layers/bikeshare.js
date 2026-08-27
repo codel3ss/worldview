@@ -4,8 +4,12 @@ import { PointLayer } from './pointLayer.js';
 import { haversine } from '../util/geo.js';
 import registry from '../data/local_data/gbfs-systems.json';
 
-/** GBFS feeds are per-operator; the proxy caches and CORS-normalises them. */
-const via = (url) => `/api/gbfs?url=${encodeURIComponent(url)}`;
+/**
+ * GBFS feeds are per-operator. Through the proxy they are cached and
+ * CORS-normalised; without it we ask the operator directly, which only works
+ * for the ones that send permissive CORS headers.
+ */
+const via = (ctx, url) => ctx.feed(`/api/gbfs?url=${encodeURIComponent(url)}`, url);
 
 function pickFeed(discovery, name) {
   const langs = discovery?.data ?? {};
@@ -54,10 +58,10 @@ export class BikeshareLayer extends PointLayer {
     );
   }
 
-  async #loadSystem(system, signal) {
+  async #loadSystem(ctx, system, signal) {
     let cached = this._systemCache.get(system.id);
     if (!cached || Date.now() - cached.at > 6 * 60 * 60 * 1000) {
-      const discovery = await fetchJson(via(system.url), { signal, timeoutMs: 15_000 });
+      const discovery = await fetchJson(via(ctx, system.url), { signal, timeoutMs: 15_000 });
       cached = {
         at: Date.now(),
         info: pickFeed(discovery, 'station_information'),
@@ -68,8 +72,8 @@ export class BikeshareLayer extends PointLayer {
     if (!cached.info || !cached.status) throw new Error(`${system.name}: feed has no station data`);
 
     const [info, status] = await Promise.all([
-      fetchJson(via(cached.info), { signal, timeoutMs: 15_000 }),
-      fetchJson(via(cached.status), { signal, timeoutMs: 15_000 }),
+      fetchJson(via(ctx, cached.info), { signal, timeoutMs: 15_000 }),
+      fetchJson(via(ctx, cached.status), { signal, timeoutMs: 15_000 }),
     ]);
 
     const byId = new Map(
@@ -112,7 +116,7 @@ export class BikeshareLayer extends PointLayer {
       return { points: [], state: FRESHNESS.IDLE, note: 'no known system in view' };
     }
 
-    const settled = await Promise.allSettled(systems.map((s) => this.#loadSystem(s, signal)));
+    const settled = await Promise.allSettled(systems.map((s) => this.#loadSystem(ctx, s, signal)));
     const points = settled.filter((r) => r.status === 'fulfilled').flatMap((r) => r.value);
     const failed = settled.filter((r) => r.status === 'rejected').length;
 

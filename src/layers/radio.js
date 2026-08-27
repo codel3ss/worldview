@@ -2,6 +2,7 @@ import { FRESHNESS } from '../core/layer.js';
 import { fetchJson } from '../core/net.js';
 import { PointLayer } from './pointLayer.js';
 import { bus } from '../core/eventBus.js';
+import { DIRECT } from '../core/feedRoute.js';
 
 /**
  * Transmitter markers you can actually listen to. Stream URLs come from the
@@ -32,8 +33,12 @@ export class RadioLayer extends PointLayer {
   async fetchPoints(ctx, signal) {
     const { lat, lon } = ctx.focus();
     const distance = Math.round(Math.min(400_000, ctx.viewRadiusMeters()));
+    const query = { lat: lat.toFixed(3), lon: lon.toFixed(3), distance, limit: 180 };
     const body = await fetchJson(
-      `/api/radio?lat=${lat.toFixed(3)}&lon=${lon.toFixed(3)}&distance=${distance}&limit=180`,
+      ctx.feed(
+        `/api/radio?lat=${query.lat}&lon=${query.lon}&distance=${distance}&limit=180`,
+        DIRECT.radio(query),
+      ),
       { signal, timeoutMs: 20_000 },
     );
 

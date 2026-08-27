@@ -102,6 +102,50 @@ See [DATA_SOURCES.md](DATA_SOURCES.md) for per-feed provenance, refresh rates
 and known gaps, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how it is
 put together.
 
+## Hosting it for free (GitLab Pages)
+
+The app is a static bundle plus an optional Node proxy, so it deploys to any
+static host. `.gitlab-ci.yml` includes a `pages` job that publishes to
+`https://<namespace>.gitlab.io/<project>/` on every push to the default branch.
+
+```bash
+# create an empty project at https://gitlab.com/projects/new first, then:
+git remote add gitlab https://gitlab.com/<you>/worldview.git
+git push gitlab HEAD:main
+```
+
+That is it — the pipeline runs lint, tests, build and the browser smoke test,
+then publishes. Pages must be enabled under **Deploy → Pages** if your project
+was created with it off.
+
+### What works without a server
+
+There is no Node process on Pages, so `/api/*` does not exist. The app detects
+that at boot and reads the keyless upstreams **directly from the browser**
+instead:
+
+| Layer | On Pages | Why |
+|---|---|---|
+| Aircraft, Military air | ✅ | Always browser-direct |
+| Seismic | ✅ | Always browser-direct |
+| Satellites | ✅ | CelesTrak read directly |
+| Launches | ✅ | Launch Library read directly |
+| Radio | ✅ | radio-browser read directly |
+| Bikeshare | ⚠️ | Only operators whose feeds send permissive CORS headers |
+| Place search | ⚠️ | Nominatim direct; they prefer a real user agent |
+| Active fire, Vessels, Traffic | ❌ | Need secret keys — impossible on static hosting |
+
+Direct mode is strictly worse than the proxy: no shared cache, and upstream
+rate limits apply per visitor rather than per deployment. The app says so in a
+banner at startup, and any feed that refuses a cross-origin read shows up as
+`error` in the layer panel with the reason attached, rather than as an empty
+layer.
+
+**If you want all ten layers on a public URL**, you need a host that runs Node.
+`npm start` serves the built app and the proxy from one process on port 8787 —
+point any container host at that, and set the keys as environment variables.
+
+
 ## Development
 
 ```bash

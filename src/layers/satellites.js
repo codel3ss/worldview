@@ -16,6 +16,7 @@ import { FRESHNESS, Layer } from '../core/layer.js';
 import { fetchText } from '../core/net.js';
 import { icon } from '../util/icons.js';
 import { parseTle } from '../util/tle.js';
+import { DIRECT } from '../core/feedRoute.js';
 
 /**
  * CelesTrak groups. Kept deliberately small: "active" is ~11k objects and
@@ -81,10 +82,8 @@ export class SatelliteLayer extends Layer {
     const groups = [...this.groups];
     const sets = await Promise.all(
       groups.map(async (group) => {
-        const text = await fetchText(`/api/celestrak?group=${encodeURIComponent(group)}`, {
-          signal,
-          timeoutMs: 25_000,
-        });
+        const url = ctx.feed(`/api/celestrak?group=${encodeURIComponent(group)}`, DIRECT.celestrak(group));
+        const text = await fetchText(url, { signal, timeoutMs: 25_000 });
         return parseTle(text).map((s) => ({ ...s, group }));
       }),
     );

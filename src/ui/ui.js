@@ -3,6 +3,7 @@ import { MAP_STACKS } from '../globe/mapStack.js';
 import { SENSOR_MODES } from '../globe/sensorModes.js';
 import { CAMERA_MODE } from '../core/selection.js';
 import { FRESHNESS } from '../core/layer.js';
+import { DIRECT } from '../core/feedRoute.js';
 import { haversine, bearing } from '../util/geo.js';
 import { ago, altitude, bearingLabel, coords, distance, escapeHtml, speed, utcClock } from '../util/format.js';
 
@@ -342,12 +343,13 @@ export class UI {
 
       timer = setTimeout(async () => {
         try {
-          const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
+          const url = this.app.ctx.feed(`/api/geocode?q=${encodeURIComponent(q)}`, DIRECT.geocode(q));
+          const res = await fetch(url);
           if (!res.ok) throw new Error(String(res.status));
           const rows = await res.json();
           show(rows.map((r) => ({ ...r, height: 14_000 })));
         } catch {
-          results.innerHTML = '<div class="jr"><span class="dim">place search unavailable — start the proxy, or type lat,lon</span></div>';
+          results.innerHTML = '<div class="jr"><span class="dim">place search unavailable — try lat,lon instead</span></div>';
         }
       }, 320);
     });

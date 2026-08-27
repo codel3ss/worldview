@@ -121,6 +121,24 @@ The proxy also exists for upstreams the browser simply cannot talk to: those
 requiring a real user agent (Nominatim, radio-browser), those without CORS, and
 those whose rate limits demand a shared cache (CelesTrak, Launch Library).
 
+### Running without the proxy
+
+The app must also survive as pure static hosting, where there is no proxy at
+all. `src/core/feedRoute.js` resolves each request: proxy path when
+`capabilities.proxy` is true, upstream URL when it is not, and `null` for feeds
+that need a secret and therefore cannot have a direct form.
+
+`ctx.feed(proxyPath, directUrl)` is handed to every layer, so a layer never
+decides this for itself and the two forms of a feed cannot drift apart. Direct
+mode gives up the shared cache and moves rate limiting from per-deployment to
+per-visitor, which is why it is the fallback rather than the default.
+
+Assets are emitted with a relative `base`, and `CESIUM_BASE_URL` is derived
+from `document.baseURI` at runtime, so one bundle works at a domain root or
+under a project subpath. The smoke test serves `dist/` under `/worldview/` and
+asserts both, because a wrong base path fails as a pile of 404s that is easy to
+miss locally.
+
 ### SSRF
 
 `/api/gbfs?url=` takes a URL from the client, which would be an open proxy if

@@ -15,6 +15,7 @@ import {
   viewRectangle,
 } from './globe/viewer.js';
 import { decodeState, encodeState } from './core/shareUrl.js';
+import { createFeedRouter, isDirect } from './core/feedRoute.js';
 
 import { AircraftLayer, MilitaryAircraftLayer } from './layers/aircraft.js';
 import { SatelliteLayer } from './layers/satellites.js';
@@ -61,6 +62,8 @@ class App {
       cameraHeight: () => cameraHeight(this.viewer),
       viewRadiusMeters: () => viewRadiusMeters(this.viewer),
       viewBox: () => viewRectangle(this.viewer),
+      // Proxy when we have one, upstream directly when we do not.
+      feed: createFeedRouter(capabilities),
     };
 
     this.mapStack = new MapStackController(this.viewer, capabilities);
@@ -108,6 +111,12 @@ class App {
 
     if (!capabilities.googleMaps) {
       this.ui.toast('No Google Maps key — running on OSM imagery. See .env.example.', 'warn');
+    }
+    if (isDirect(capabilities)) {
+      this.ui.toast(
+        'No proxy — keyless feeds are being read straight from their upstreams. Fires, vessels and traffic need a server and stay off.',
+        'warn',
+      );
     }
 
     bus.emit('app:ready', this);

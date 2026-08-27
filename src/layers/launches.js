@@ -1,6 +1,7 @@
 import { FRESHNESS } from '../core/layer.js';
 import { fetchJson } from '../core/net.js';
 import { PointLayer } from './pointLayer.js';
+import { DIRECT } from '../core/feedRoute.js';
 
 const WINDOW_DAYS = 30;
 
@@ -23,8 +24,14 @@ export class LaunchLayer extends PointLayer {
 
   async fetchPoints(ctx, signal) {
     const [upcoming, previous] = await Promise.all([
-      fetchJson('/api/launches?mode=upcoming&limit=40', { signal, timeoutMs: 20_000 }),
-      fetchJson('/api/launches?mode=previous&limit=25', { signal, timeoutMs: 20_000 }),
+      fetchJson(ctx.feed('/api/launches?mode=upcoming&limit=40', DIRECT.launches('upcoming', 40)), {
+        signal,
+        timeoutMs: 20_000,
+      }),
+      fetchJson(ctx.feed('/api/launches?mode=previous&limit=25', DIRECT.launches('previous', 25)), {
+        signal,
+        timeoutMs: 20_000,
+      }),
     ]);
 
     const cutoff = Date.now() - WINDOW_DAYS * 86_400_000;

@@ -1,0 +1,71 @@
+# GitLab CI for worldview.
+#
+# Mirrors .github/workflows/ci.yml: lint, unit tests, production build, then a
+# real-browser smoke test. None of it needs network access to the data feeds —
+# the smoke test forces the zero-network "void" globe.
+
+stages: [verify, build, test, deploy]
+
+default:
+  image: node:22-bookworm
+  cache:
+    key:
+      files: [package-lock.json]
+    paths: [.npm/]
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+
+lint:
+  stage: verify
+  script:
+    - npm run lint
+
+unit:
+  stage: verify
+  script:
+    - npm test
+
+build:
+  stage: build
+  script:
+    - npm run build
+  artifacts:
+    paths: [dist/]
+    expire_in: 1 week
+
+# Headless Chromium with WebGL. The Playwright image ships the browser and its
+# system libraries, so there is nothing to install at job time.
+smoke:
+  stage: test
+  image: mcr.microsoft.com/playwright:v1.62.1-noble
+  needs: [build]
+  dependencies: [build]
+  script:
+    - npm run smoke
+
+# --- GitLab Pages ----------------------------------------------------------
+# Publishes the static build to https://<namespace>.gitlab.io/<project>/.
+#
+# There is no Node process on Pages, so the proxy does not exist there. The app
+# detects that (GET /api/health fails) and reads the keyless upstreams directly
+# from the browser. Fires, vessels and traffic need secret keys, cannot work
+# without a server, and stay switched off with an explanation in the panel.
+#
+# Pages insists the published directory be called `public`. That name is
+# already taken in this repo by Vite's static input directory — which is only
+# an input, and has been fully consumed by the time the build finishes — so we
+# swap the build output into its place.
+pages:
+  stage: deploy
+  needs: [build]
+  dependencies: [build]
+  # Nothing to install: this job only reshapes the artifact from `build`.
+  before_script: []
+  script:
+    - rm -rf public
+    - mv dist public
+  artifacts:
+    paths: [public]
+  rules:
+    # Pages only publishes from the default branch.
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

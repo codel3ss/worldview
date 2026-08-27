@@ -11,6 +11,10 @@ export default defineConfig(({ mode }) => {
   const apiProxy = { '/api': { target: proxyTarget, changeOrigin: true, ws: true } };
 
   return {
+    // Relative asset URLs, so the same bundle works at a domain root or under
+    // a project subpath. The app keeps all its state in the URL fragment and
+    // has no client-side router, so there is no deep-linking cost.
+    base: './',
     server: {
       port: Number(env.PORT_WEB || 4173),
       strictPort: false,
