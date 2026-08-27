@@ -102,11 +102,27 @@ See [DATA_SOURCES.md](DATA_SOURCES.md) for per-feed provenance, refresh rates
 and known gaps, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how it is
 put together.
 
-## Hosting it for free (GitLab Pages)
+## Hosting it for free
 
 The app is a static bundle plus an optional Node proxy, so it deploys to any
-static host. `.gitlab-ci.yml` includes a `pages` job that publishes to
-`https://<namespace>.gitlab.io/<project>/` on every push to the default branch.
+static host. Two are wired up already; pick either.
+
+### GitHub Pages
+
+`.github/workflows/pages.yml` builds and publishes on every push to the default
+branch. No terminal needed — two settings in the repo:
+
+1. **Settings → General → Change repository visibility → Public.** Pages on a
+   private repo requires a paid plan.
+2. **Settings → Pages → Source: GitHub Actions.**
+
+Push anything (or run the workflow manually from the Actions tab) and the site
+lands at `https://<you>.github.io/<repo>/`.
+
+### GitLab Pages
+
+`.gitlab-ci.yml` runs lint, tests, build and the browser smoke test, then
+publishes to `https://<namespace>.gitlab.io/<project>/` from the default branch.
 
 ```bash
 # create an empty project at https://gitlab.com/projects/new first, then:
@@ -114,9 +130,9 @@ git remote add gitlab https://gitlab.com/<you>/worldview.git
 git push gitlab HEAD:main
 ```
 
-That is it — the pipeline runs lint, tests, build and the browser smoke test,
-then publishes. Pages must be enabled under **Deploy → Pages** if your project
-was created with it off.
+From a browser instead: **New project → Import project → GitHub**, which does
+an OAuth handshake and works for private repos. Enable Pages under
+**Deploy → Pages** if the project was created with it off.
 
 ### What works without a server
 

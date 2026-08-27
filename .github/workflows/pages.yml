@@ -1,0 +1,60 @@
+name: pages
+
+# Deploys the static build to GitHub Pages.
+#
+# There is no Node process on Pages, so the proxy does not exist there. The app
+# detects that at boot and reads the keyless upstreams directly from the
+# browser; fires, vessels and traffic need secret keys, cannot work without a
+# server, and stay off with an explanation in the layer panel.
+
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+# Allow exactly one deployment at a time; let a running one finish rather than
+# cancelling it half-published.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    # Only the default branch publishes, whatever it happens to be called.
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # Assets are emitted relative and CESIUM_BASE_URL is derived from
+      # document.baseURI, so the same bundle works at the /<repo>/ subpath
+      # Pages serves from. test/smoke.mjs asserts this.
+      - run: npm run build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
