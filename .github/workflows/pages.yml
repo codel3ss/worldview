@@ -43,7 +43,12 @@ jobs:
       # Pages serves from. test/smoke.mjs asserts this.
       - run: npm run build
 
+      # `enablement` turns the Pages site on via the API if it is not already,
+      # so there is no Settings -> Pages step to do by hand. It still requires
+      # the repository to be eligible: on the free plan that means public.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:

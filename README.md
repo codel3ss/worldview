@@ -110,14 +110,21 @@ static host. Two are wired up already; pick either.
 ### GitHub Pages
 
 `.github/workflows/pages.yml` builds and publishes on every push to the default
-branch. No terminal needed — two settings in the repo:
+branch, and turns the Pages site on itself via `configure-pages` with
+`enablement: true`. No terminal needed, and nothing to configure by hand:
 
-1. **Settings → General → Change repository visibility → Public.** Pages on a
-   private repo requires a paid plan.
-2. **Settings → Pages → Source: GitHub Actions.**
+1. **Settings → General → Change repository visibility → Public.**
+2. **Actions → pages → Run workflow.**
 
-Push anything (or run the workflow manually from the Actions tab) and the site
-lands at `https://<you>.github.io/<repo>/`.
+Visibility has to come first. On the free plan Pages does not exist for private
+repositories, so the Pages API 404s and the run fails with
+`Get Pages site failed`; the Settings → Pages screen also hides the source
+dropdown behind an upgrade prompt until the repo is public.
+
+The site lands at `https://<you>.github.io/<repo>/`.
+
+**To keep the source private**, use GitLab instead — its free tier serves Pages
+from private projects.
 
 ### GitLab Pages
 
